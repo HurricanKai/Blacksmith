@@ -10,6 +10,22 @@
 
 ----------
 
+//TODO: Realize Commands
+**Commands:**
+-------------
+
+**All Commands Start with /Blacksmith**
+
+> |      Command     	|          Usage          	|
+|:----------------:	|:-----------------------:	|
+|   Config Reload  	|      Reloads Config     	|
+|    Config Save   	|       Saves Config      	|
+| Config Set `<key>` 	|      Sets Key `<key>`     	|
+|   Config reset   	| Resets Config and Saves 	|
+
+
+----------
+
 
 **Config:**
 -------------
