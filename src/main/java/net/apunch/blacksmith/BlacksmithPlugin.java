@@ -33,13 +33,14 @@ import regalowl.hyperconomy.tradeobject.TradeObject;
 
 
 public class BlacksmithPlugin extends JavaPlugin {
+	//TODO: player.getInventory().getItem(index) Index = onItemHeldChange(EVENT);
 	public BlacksmithPlugin plugin;
 	private Settings config;
 	private Economy economy;
 	private HyperAPI hyperAPI;
 	private BukkitConnector bukCon;
 	private boolean useHyperAPI = false;
-        //private boolean hasCititrader = false; // CitiTrader dependency outdated and broken
+    //private boolean hasCititrader = false; // CitiTrader dependency outdated and broken
 
 	@Override
 	public void onDisable() {
@@ -72,38 +73,27 @@ public class BlacksmithPlugin extends JavaPlugin {
                  }
                  */
                 
-		boolean canload = SetupVault();
-		if (!canload)
-		{
-			getLogger().log(Level.INFO, "Vault Failed....");
-			getServer().getPluginManager().disablePlugin(this);
-			return;
-		}
-		CitizensAPI.getTraitFactory().registerTrait(net.citizensnpcs.api.trait.TraitInfo.create(BlacksmithTrait.class).withName("blacksmith"));
-
-
-		getLogger().log(Level.INFO, " v" + getDescription().getVersion() + " enabled.");
-	}
-
-    private boolean SetupVault() {
 		// Setup Vault
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(
-				Economy.class);
+		Economy.class);
 		if (economyProvider != null)
-		{
 			economy = economyProvider.getProvider();
-			return true;
-		}
 		else {
 			// Disable if no economy plugin was found
 			getServer().getLogger().log(Level.SEVERE, "Failed to load an economy plugin. Disabling...");
-			return false;
+			getServer().getPluginManager().disablePlugin(this);
+			return;
 		}
+				
+		CitizensAPI.getTraitFactory().registerTrait(net.citizensnpcs.api.trait.TraitInfo.create(BlacksmithTrait.class).withName("blacksmith"));
+
+		getLogger().log(Level.INFO, " v" + getDescription().getVersion() + " enabled.");
 	}
 
 	@Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
         config.load();
+        if(sender.hasPermission("blacksmith.reload"))
         sender.sendMessage(ChatColor.GREEN + "Blacksmith config reloaded!");
         return true;
     }
@@ -156,6 +146,7 @@ public class BlacksmithPlugin extends JavaPlugin {
 		case FLINT_AND_STEEL:
 		case FISHING_ROD:
 		case SHEARS:
+		case ELYTRA:
 			return true;
 		default:
 			return false;
@@ -184,6 +175,7 @@ public class BlacksmithPlugin extends JavaPlugin {
 		case DIAMOND_CHESTPLATE:
 		case DIAMOND_LEGGINGS:
 		case DIAMOND_BOOTS:
+		case ELYTRA:
 			return true;
 		default:
 			return false;

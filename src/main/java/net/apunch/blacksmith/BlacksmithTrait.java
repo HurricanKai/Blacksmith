@@ -60,6 +60,10 @@ public class BlacksmithTrait extends Trait {
 
 	@Override
 	public void load(DataKey key) {
+		LoadConfig(key);
+	}
+
+	private void LoadConfig(DataKey key) {
 		for (DataKey sub : key.getRelative("reforgeable-items").getIntegerSubKeys())
 			if (Material.getMaterial(sub.getString("").toUpperCase().replace('-', '_')) != null)
 				reforgeableItems.add(Material.getMaterial(sub.getString("").toUpperCase().replace('-', '_')));
