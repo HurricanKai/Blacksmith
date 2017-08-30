@@ -92,9 +92,29 @@ public class BlacksmithPlugin extends JavaPlugin {
 
 	@Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-        config.load();
-        if(sender.hasPermission("blacksmith.reload"))
-        sender.sendMessage(ChatColor.GREEN + "Blacksmith config reloaded!");
+		
+		if (args[0].toLowerCase() == "config")
+		{
+			if (args[1].toLowerCase() == "reload")
+			{
+				if (!sender.hasPermission("blacksmith.reload")) return true;
+		        config.load();
+		        sender.sendMessage(ChatColor.GREEN + "Blacksmith config reloaded!");
+			}
+			if (args[1].toLowerCase() == "set")
+			{
+				if (!sender.hasPermission("blacksmith.set")) return true;
+				Setting setting = Setting.FromString(args[2]);
+		        config.SetKey(setting, args[3]);
+		        sender.sendMessage(ChatColor.GREEN + "Blacksmith key saved!");
+			}
+			if (args[1].toLowerCase() == "reset")
+			{
+				if (!sender.hasPermission("blacksmith.reset")) return true;
+				config.Reset();
+				sender.sendMessage(ChatColor.RED + "Blacksmith config Resetet");
+			}
+		}
         return true;
     }
 

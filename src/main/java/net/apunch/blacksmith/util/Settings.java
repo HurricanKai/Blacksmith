@@ -3,7 +3,7 @@ package net.apunch.blacksmith.util;
 import java.io.File;
 
 import net.apunch.blacksmith.BlacksmithPlugin;
-
+import net.apunch.blacksmith.util.Settings.Setting;
 import net.citizensnpcs.api.util.DataKey;
 import net.citizensnpcs.api.util.YamlStorage;
 
@@ -24,6 +24,35 @@ public class Settings {
                 setting.set(root.getRaw(setting.path));
 
         config.save();
+    }
+    public void SetKey(Setting set, Object value)
+    {
+        config.load();
+        
+        DataKey root = config.getKey("");
+        //Jep Just Like Reload
+        for (Setting setting : Setting.values())
+        {
+            if (!root.keyExists(setting.path))
+                root.setRaw(setting.path, setting.get());
+            else
+                setting.set(root.getRaw(setting.path));
+            if (setting == set)
+            {
+            	setting.set(value);
+            }
+        }
+        config.save();
+    }
+    
+    public void Reset()
+    {
+        DataKey root = config.getKey("");
+        for (Setting setting : Setting.values())
+        		setting.set(root.getRaw(setting.path));
+
+        config.save();
+        load();
     }
 
     public YamlStorage getConfig() {
@@ -97,5 +126,16 @@ public class Settings {
         private void set(Object value) {
             this.value = value;
         }
+
+		public static Setting FromString(String string) {
+			for (Setting setting : Setting.values())
+			{
+				if (string == setting.toString())
+				{
+					return setting;
+				}
+			}
+			return null;
+		}
     }
 }

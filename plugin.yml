@@ -6,6 +6,6 @@ depend: [Citizens, Vault]
 softdepend: [HyperConomy]
 
 commands:
-  blacksmithreload:
-    permission: blacksmith.reload
-    description: reloads the config file for Blacksmith
+  blacksmith:
+    permission: blacksmith
+    description: Blacksmith base Command
