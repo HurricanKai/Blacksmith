@@ -1,6 +1,6 @@
 
 
-**Blacksmith Citicens2 Trait**
+**Blacksmith Citizens2 Trait**
 ------------------------------
 
 *Backed by [Citizens2](https://github.com/CitizensDev/Citizens2)* 
