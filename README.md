@@ -7,7 +7,6 @@
 *Get Latest Build	[Jenkins](http://ci.citizensnpcs.co/job/Blacksmith/)* 
 *Major Builds [Github Releases](https://github.com/HurricanKai/Blacksmith/releases)* 
 
-
 ----------
 
 
