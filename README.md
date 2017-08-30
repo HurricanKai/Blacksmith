@@ -7,23 +7,6 @@
 *Get Latest Build	[Jenkins](http://ci.citizensnpcs.co/job/Blacksmith/)* 
 *Major Builds [Github Releases](https://github.com/HurricanKai/Blacksmith/releases)* 
 
-
-----------
-
-//TODO: Realize Commands
-**Commands:**
--------------
-
-**All Commands Start with /Blacksmith**
-
-> |      Command     	|          Usage          	|
-|:----------------:	|:-----------------------:	|
-|   Config Reload  	|      Reloads Config     	|
-|    Config Save   	|       Saves Config      	|
-| Config Set `<key>` 	|      Sets Key `<key>`     	|
-|   Config reset   	| Resets Config and Saves 	|
-
-
 ----------
 
 
