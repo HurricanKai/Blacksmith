@@ -1,9 +1,12 @@
 **Blacksmith Citicens2 Trait**
 ------------------------------
 
-*Backed by [Citizens2](https://github.com/CitizensDev/Citizens2)* 
-*Get Latest Build	[Jenkins](http://ci.citizensnpcs.co/job/Blacksmith/)* 
-*Major Builds [Github Releases](https://github.com/HurricanKai/Blacksmith/releases)* 
+*Backed by [Citizens2](https://github.com/CitizensDev/Citizens2)*
+
+*Get Latest Build	[Jenkins](http://ci.citizensnpcs.co/job/Blacksmith/)*
+
+*Major Builds [Github Releases](https://github.com/HurricanKai/Blacksmith/releases)*
+
 
 ----------
 
