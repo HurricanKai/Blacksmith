@@ -114,7 +114,16 @@ public class BlacksmithPlugin extends JavaPlugin {
 		return null;
 	}
 
-
+	public String FormatBalance(Player player)
+	{
+		double balance = getbalance(player);
+		return Double.toString(balance);
+	}
+	
+	private double getbalance(Player player)
+	{
+		return economy.getBalance((OfflinePlayer) player);
+	}
 	public boolean isTool(ItemStack item) {
 		switch (item.getType()) {
 		case WOOD_PICKAXE:
