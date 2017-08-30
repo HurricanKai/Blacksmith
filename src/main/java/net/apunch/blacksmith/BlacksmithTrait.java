@@ -168,7 +168,7 @@ public class BlacksmithTrait extends Trait {
 			_sessionstart = System.currentTimeMillis();
 			session = new ReforgeSession(player, npc);
 			player.sendMessage(costMsg.replace("<price>", cost).replace("<item>",
-					hand.getType().name().toLowerCase().replace('_', ' ')));
+					hand.getType().name().toLowerCase().replace('_', ' ').replace("<MaxDurability>", Short.toString(hand.getType().getMaxDurability())).replace("<Durability>", Short.toString(hand.getDurability()))));
 
 		}
 	}
@@ -313,7 +313,9 @@ public class BlacksmithTrait extends Trait {
 				return true;
 			}
 			if (!plugin.doesPlayerHaveEnough(player)) {
-				player.sendMessage( insufficientFundsMsg);
+				String cost = plugin.formatCost(player);
+				String currentfounds = plugin.FormatBalance(player);
+				player.sendMessage( insufficientFundsMsg.replace("<price>", cost).replace("currentfounds", currentfounds));
 				return true;
 			}
 			return false;
