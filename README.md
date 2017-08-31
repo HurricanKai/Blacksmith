@@ -3,9 +3,14 @@
 **Blacksmith Citizens2 Trait**
 ------------------------------
 
+Status: [![Build Status](http://84.200.222.238:8080/job/Github.HurricanKai.Blacksmith/badge/icon)](http://84.200.222.238:8080/job/Github.HurricanKai.Blacksmith/)
+
 *Backed by [Citizens2](https://github.com/CitizensDev/Citizens2)* 
+
 *Get Latest Build	[Jenkins](http://ci.citizensnpcs.co/job/Blacksmith/)* 
+
 *Major Builds [Github Releases](https://github.com/HurricanKai/Blacksmith/releases)* 
+
 
 ----------
 
