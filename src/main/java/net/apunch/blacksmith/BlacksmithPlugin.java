@@ -110,24 +110,12 @@ public class BlacksmithPlugin extends JavaPlugin {
 			if (args[1].equalsIgnoreCase("reload"))
 			{
 				if (!sender.hasPermission("bs.reload")) return true;
-		        config.load();
+				//reset
+				config = new Settings(this);
+				//load
+				config.load();
 		        sender.sendMessage(ChatColor.GREEN + "Blacksmith config reloaded!");
 		        return true;
-			}
-			if (args[1].equalsIgnoreCase("set"))
-			{
-				if (args.length >= 3)
-				{
-					if (!sender.hasPermission("bs.set")) return true;
-					Setting setting = Setting.FromString(args[2]);
-					config.SetKey(setting, args[3]);
-					sender.sendMessage(ChatColor.GREEN + "Blacksmith key saved!");
-				}
-				else
-				{
-					sender.sendMessage("Specify a Key and a Value");
-					return true;
-				}
 			}
 			if (args[1].equalsIgnoreCase("reset"))
 			{

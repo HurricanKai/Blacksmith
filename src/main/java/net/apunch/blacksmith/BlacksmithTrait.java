@@ -268,9 +268,12 @@ public class BlacksmithTrait extends Trait {
 			}
 			session = null;
 			// Start cooldown
-			Calendar wait = Calendar.getInstance();
-			wait.add(Calendar.SECOND, reforgeCooldown);
-			cooldowns.put(player.getName(), wait);
+			if (!disablecooldown)
+			{
+				Calendar wait = Calendar.getInstance();
+				wait.add(Calendar.SECOND, reforgeCooldown);
+				cooldowns.put(player.getName(), wait);
+			}
 		}
 
 		private boolean reforgeItemInHand() {
