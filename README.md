@@ -53,4 +53,5 @@ Note: These names are the internal names.
  - START_REFORGE_MESSAGE = Message to Display on Starting Reforge
  - SUCCESS_MESSAGE = Message to Display on Succes
  - DROP_ITEM = If true, Drops the Item. Else, Gives to Player.
+     - [Ignored if DISABLE_COOLDOWN is true]
  - ENABLE_INSTANT = if true, enables shift + rightclick for instant buying 
