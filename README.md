@@ -50,4 +50,5 @@ Status: [![Build Status](http://84.200.222.238:8080/buildStatus/icon?job=Github.
      - [Ingored if DISABLED_COOLDOWN = true]
  - START_REFORGE_MESSAGE = Message to Display on Starting Reforge
  - SUCCESS_MESSAGE = Message to Display on Succes
- - DROP_ITEM = If true, Drops the Item. Else, Gives to Player. !! NOT USING /GIVE IT REPLACES THE CURRENT MAIN HAND!
+ - DROP_ITEM = If true, Drops the Item. Else, Gives to Player.
+ - ENABLE_INSTANT = if true, enables shift + rightclick for instant buying 

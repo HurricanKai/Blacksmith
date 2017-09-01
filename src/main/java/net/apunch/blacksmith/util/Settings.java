@@ -73,6 +73,7 @@ public class Settings {
         DROP_ITEM("defaults.dropitem", true),
         DISABLE_COOLDOWN("defaults.disablecooldown", false),
         DISABLE_DELAY("defaults.disabledelay", false),
+        ENABLE_INSTANT("defaults.enableinstant", true),
         ENCHANTMENT_MODIFIER("enchantment-modifiers.default", 5),
         FAIL_CHANCE("defaults.percent-chance-to-fail-reforge", 10),
         FAIL_MESSAGE("defaults.messages.fail-reforge", "§cWhoops! Didn't mean to do that! Maybe next time?"),

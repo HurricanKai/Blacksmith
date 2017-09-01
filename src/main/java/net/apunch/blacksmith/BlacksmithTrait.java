@@ -49,6 +49,7 @@ public class BlacksmithTrait extends Trait {
 	private boolean dropItem = Setting.DROP_ITEM.asBoolean();
 	private boolean disablecooldown = Setting.DISABLE_COOLDOWN.asBoolean();
 	private boolean disabledelay = Setting.DISABLE_DELAY.asBoolean();
+	private boolean enableinstant = Setting.ENABLE_INSTANT.asBoolean();
 
 	public BlacksmithTrait() {
 		super("blacksmith");
@@ -107,30 +108,37 @@ public class BlacksmithTrait extends Trait {
 			disablecooldown = key.getBoolean("disable-cooldown");
 		if (key.keyExists("disable-delay"))
 			disabledelay = key.getBoolean("disable-delay");
+		if (key.keyExists("enable-instant"))
+				enableinstant = key.getBoolean("enable-instant");
 	}
 
 	@EventHandler
 	public void onRightClick(net.citizensnpcs.api.event.NPCRightClickEvent event) {
-		if(this.npc!=event.getNPC()) return;
-
 		Player player = event.getClicker();
+		
+		//I Hope For an event.Item();
+		//For now:
+		ItemStack hand = player.getItemInHand();
+		boolean instant = false;
+		if (event.getClicker().isSneaking())
+			instant = true;
+		
+		if(this.npc!=event.getNPC()) return;
 		if ((disablecooldown & (cooldowns.get(player.getName()) != (null))))
 		{
 			cooldowns.remove(player.getName());
 		}
-		if (!player.hasPermission("blacksmith.reforge"))
+		if (!player.hasPermission("blacksmith.use"))
 			return;
 
 		if (cooldowns.get(player.getName()) != null) {
+			//Check if Cooldown is ok;
 			if (!Calendar.getInstance().after(cooldowns.get(player.getName()))) {
 				player.sendMessage(cooldownUnexpiredMsg);
 				return;
 			}
 			cooldowns.remove(player.getName());
 		}
-
-
-		ItemStack hand = player.getItemInHand();
 
 		if(session!=null){
 			//timeout
@@ -141,24 +149,25 @@ public class BlacksmithTrait extends Trait {
 
 
 		if (session != null) {
+			//Check if already Talking
 			if (!session.isInSession(player)) {
 
-				player.sendMessage( busyWithPlayerMsg);
+				player.sendMessage(busyWithPlayerMsg);
 				return;		
 
 			}
-
+			//Check if already Reforging
 			if (session.isRunning()) {
-				player.sendMessage( busyReforgingMsg);
+				player.sendMessage(busyReforgingMsg);
 				return;
 			}
-			if (session.handleClick())
+			if (session.handleClick() )
 				session = null;
 			else
 				reforge(npc, player);
 		} else {
 			if ((!plugin.isTool(hand) && !plugin.isArmor(hand))
-					|| (!reforgeableItems.isEmpty() && !reforgeableItems.contains(hand.getType()))) {
+					|| (!reforgeableItems.isEmpty() && !reforgeableItems.contains(hand.getType()))) { //TODO: ? this tests reforgeableItems for null (more or less), and then checks if it contains xy ?
 				player.sendMessage( invalidItemMsg);
 				return;
 			}
@@ -169,6 +178,10 @@ public class BlacksmithTrait extends Trait {
 			session = new ReforgeSession(player, npc);
 			player.sendMessage(costMsg.replace("<price>", cost).replace("<item>",
 					hand.getType().name().toLowerCase().replace('_', ' ').replace("<MaxDurability>", Short.toString(hand.getType().getMaxDurability())).replace("<Durability>", Short.toString(hand.getDurability()))));
+			if (instant && enableinstant)
+			{
+				reforge(npc, player);
+			}
 
 		}
 	}
@@ -200,6 +213,7 @@ public class BlacksmithTrait extends Trait {
 		key.setBoolean("drop-item", dropItem);
         key.setBoolean("disable-delay", disabledelay);
         key.setBoolean("disable-cooldown", disablecooldown);
+        key.setBoolean("enable-instant", enableinstant);
 	}
 
 	private void reforge(NPC npc, Player player) {
@@ -207,7 +221,7 @@ public class BlacksmithTrait extends Trait {
                 
                 //plugin.deposit(npc, player); // CitiTrader dependency outdated and broken
                 
-                plugin.withdraw(player);
+        plugin.withdraw(player);
 		session.beginReforge();
 		if (npc.getEntity() instanceof Player)
 			((Player) npc.getEntity()).setItemInHand(player.getItemInHand());
@@ -261,7 +275,7 @@ public class BlacksmithTrait extends Trait {
 
 		private boolean reforgeItemInHand() {
 			Random random = new Random();
-			if (random.nextInt(100) < failChance) {
+			if (random.nextInt(100) + 1 < failChance) { // + 1 because random.nextInt coud return 0, and failChance = 0 shoud be disabled. but, failChance gets -1 //TODO: Make this better
 				for (Enchantment enchantment : reforge.getEnchantments().keySet()) {
 					// Remove or downgrade enchantments
 					if (random.nextBoolean())
@@ -288,7 +302,7 @@ public class BlacksmithTrait extends Trait {
 
 			// Add random enchantments
 
-
+			//TODO: Find balance Possiblility ? Wizard ?
 			// If durability is full, chance is multiplied by 4. Seems unbalanced, so disabled for now.
 			/*if (reforge.getDurability() == 0)
             	chance *= 4;
