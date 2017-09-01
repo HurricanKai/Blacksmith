@@ -18,6 +18,8 @@ Status: [![Build Status](http://84.200.222.238:8080/buildStatus/icon?job=Github.
 **Config:**
 -------------
 
+Note: These names are the internal names.
+
 - **Config Values:**
  - BASE_PRICE = The Basis Price Added to Any Other Price
  - PRICE_PER_DURABILITY_POINT = Price added to Full Price per Durability point
