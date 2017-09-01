@@ -93,29 +93,58 @@ public class BlacksmithPlugin extends JavaPlugin {
 	@Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
 		
-		if (args[0].toLowerCase() == "config")
+        if(command.getName().equalsIgnoreCase("bs"))
+        {
+        if (args.length < 1)
+        {
+        	sender.sendMessage("Please Specify a Mode");
+        	return false;
+        }
+        if (args.length < 2)
+        {
+        	sender.sendMessage("Please Specify a Node");
+        	return false;
+        }
+		if (args[0].equalsIgnoreCase("config"))
 		{
-			if (args[1].toLowerCase() == "reload")
+			if (args[1].equalsIgnoreCase("reload"))
 			{
-				if (!sender.hasPermission("blacksmith.reload")) return true;
+				if (!sender.hasPermission("bs.reload")) return true;
 		        config.load();
 		        sender.sendMessage(ChatColor.GREEN + "Blacksmith config reloaded!");
+		        return true;
 			}
-			if (args[1].toLowerCase() == "set")
+			if (args[1].equalsIgnoreCase("set"))
 			{
-				if (!sender.hasPermission("blacksmith.set")) return true;
-				Setting setting = Setting.FromString(args[2]);
-		        config.SetKey(setting, args[3]);
-		        sender.sendMessage(ChatColor.GREEN + "Blacksmith key saved!");
+				if (args.length >= 3)
+				{
+					if (!sender.hasPermission("bs.set")) return true;
+					Setting setting = Setting.FromString(args[2]);
+					config.SetKey(setting, args[3]);
+					sender.sendMessage(ChatColor.GREEN + "Blacksmith key saved!");
+				}
+				else
+				{
+					sender.sendMessage("Specify a Key and a Value");
+					return true;
+				}
 			}
-			if (args[1].toLowerCase() == "reset")
+			if (args[1].equalsIgnoreCase("reset"))
 			{
-				if (!sender.hasPermission("blacksmith.reset")) return true;
+				if (!sender.hasPermission("bs.reset")) return true;
 				config.Reset();
 				sender.sendMessage(ChatColor.RED + "Blacksmith config Resetet");
+				return true;
 			}
 		}
-        return true;
+		else
+		{
+			sender.sendMessage("Please Specify a Valid Mode");
+			sender.sendMessage(args[0] + args[1]);
+			return false;
+		}
+        }
+        return false;
     }
 
     /* CitiTrader dependency outdated and broken
