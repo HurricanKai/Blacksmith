@@ -18,6 +18,8 @@ Status: [![Build Status](http://84.200.222.238:8080/buildStatus/icon?job=Github.
 **Config:**
 -------------
 
+Note: These names are the internal names.
+
 - **Config Values:**
  - BASE_PRICE = The Basis Price Added to Any Other Price
  - PRICE_PER_DURABILITY_POINT = Price added to Full Price per Durability point
@@ -51,4 +53,5 @@ Status: [![Build Status](http://84.200.222.238:8080/buildStatus/icon?job=Github.
  - START_REFORGE_MESSAGE = Message to Display on Starting Reforge
  - SUCCESS_MESSAGE = Message to Display on Succes
  - DROP_ITEM = If true, Drops the Item. Else, Gives to Player.
+     - [Ignored if DISABLE_COOLDOWN is true]
  - ENABLE_INSTANT = if true, enables shift + rightclick for instant buying 
