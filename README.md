@@ -21,6 +21,7 @@
 - Success
 
 if this isnt working for you, please try the [latest build](http://ci.citizensnpcs.co/job/Blacksmith/)!
+-----
 **Config:**
 -------------
 
@@ -61,3 +62,4 @@ Note: These names are the internal names.
  - DROP_ITEM = If true, Drops the Item. Else, Gives to Player.
      - [Ignored if DISABLE_COOLDOWN is true]
  - ENABLE_INSTANT = if true, enables shift + rightclick for instant buying 
+-----
