@@ -3,8 +3,6 @@
 **Blacksmith Citizens2 Trait**
 ------------------------------
 
-Status: [![Build Status](http://84.200.222.238:8080/buildStatus/icon?job=Github.HurricanKai.Blacksmith)](http://84.200.222.238:8080/job/Github.HurricanKai.Blacksmith/)
-
 *Backed by [Citizens2](https://github.com/CitizensDev/Citizens2)* 
 
 *Get Latest Build	[Jenkins](http://ci.citizensnpcs.co/job/Blacksmith/)* 
@@ -14,7 +12,15 @@ Status: [![Build Status](http://84.200.222.238:8080/buildStatus/icon?job=Github.
 
 ----------
 
+**Installation**
+-------------
+- Install Citizens2
+- Get The Latest [Major Build](https://github.com/HurricanKai/Blacksmith/releases)
+- Add to Plugins Folder
+- Restart Server
+- Success
 
+if this isnt working for you, please try the [latest build](http://ci.citizensnpcs.co/job/Blacksmith/)!
 **Config:**
 -------------
 
