@@ -20,7 +20,9 @@
 - Restart Server
 - Success
 
-if this isnt working for you, please try the [latest build](http://ci.citizensnpcs.co/job/Blacksmith/)!
+*if this isnt working for you, please try the [latest build](http://ci.citizensnpcs.co/job/Blacksmith/)!*
+*and please open an [Issue](https://github.com/HurricanKai/Blacksmith/issues)*
+
 -----
 **Config:**
 -------------
