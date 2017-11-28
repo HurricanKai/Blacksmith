@@ -11,7 +11,8 @@ commands:
     usage: /bs <mode> <mode.node>
     permission: bs
     permission-message: You dont have the bs Permission
-    
+  blacksmith:
+    usage: /backsmith givegems <player> <amount>
 permissions:
    bs.reload:
      description: Allows you to Reload bs

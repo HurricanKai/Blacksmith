@@ -1,18 +1,19 @@
 package net.apunch.blacksmith;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
+import com.scarabcoder.commons.ScarabCommons;
+import net.milkbowl.vault.item.Items;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import net.apunch.blacksmith.util.Settings.Setting;
@@ -20,6 +21,7 @@ import net.apunch.blacksmith.util.Settings.Setting;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.util.DataKey;
+
 
 public class BlacksmithTrait extends Trait {
 	private static final String[] enchantments = new String[Enchantment.values().length];
@@ -118,7 +120,8 @@ public class BlacksmithTrait extends Trait {
 		
 		//I Hope For an event.Item();
 		//For now:
-		ItemStack hand = player.getItemInHand();
+
+		ItemStack hand = player.getInventory().getItemInMainHand();
 		boolean instant = false;
 		if (event.getClicker().isSneaking())
 			instant = true;
@@ -175,9 +178,20 @@ public class BlacksmithTrait extends Trait {
 			String cost = plugin.formatCost(player);
 			
 			_sessionstart = System.currentTimeMillis();
+			String start = ChatColor.YELLOW + "It will cost " + ChatColor.GREEN.toString() + cost + ChatColor.YELLOW;
+			if(BlacksmithPlugin.getItemsConfig().getBoolean("required") && BlacksmithPlugin.getItemsConfig().contains("items." + hand.getType())){
+				ConfigurationSection cs = BlacksmithPlugin.getItemsConfig().getConfigurationSection("items." + hand.getType());
+				ItemStack gem = BlacksmithPlugin.itemStackFromSection(BlacksmithPlugin.getItemsConfig().getConfigurationSection("repair-gem"));
+				start += ", " + cs.getInt("gemCost") + "x " + gem.getItemMeta().getDisplayName() + ChatColor.YELLOW;
+				if(cs.contains("material2")){
+					start += ", " + cs.getInt("materialCost") + "x " + Items.itemByType(Material.valueOf(cs.getString("material"))).getName();
+					start += " and " + cs.getInt("material2Cost") + "x " + Items.itemByType(Material.valueOf(cs.getString("material2"))).getName();
+				}else{
+					start += " and " + cs.getInt("materialCost") + "x " + Items.itemByType(Material.valueOf(cs.getString("material"))).getName();
+				}
+			}
 			session = new ReforgeSession(player, npc);
-			player.sendMessage(costMsg.replace("<price>", cost).replace("<item>",
-					hand.getType().name().toLowerCase().replace('_', ' ').replace("<MaxDurability>", Short.toString(hand.getType().getMaxDurability())).replace("<Durability>", Short.toString(hand.getDurability()))));
+			player.sendMessage(start + " to reforge that " + Items.itemByType(hand.getType()).getName() + ".");
 			if (instant && enableinstant)
 			{
 				reforge(npc, player);
@@ -229,6 +243,7 @@ public class BlacksmithTrait extends Trait {
         	((LivingEntity) npc.getEntity()).getEquipment().setItemInHand(player.getItemInHand());
 		player.setItemInHand(null);
 	}
+
 
 	private class ReforgeSession implements Runnable {
 		private final Player player;
@@ -322,8 +337,85 @@ public class BlacksmithTrait extends Trait {
 			return true;
 		}
 
+
+
 		// Return if the session should end
 		private boolean handleClick() {
+			ItemStack[] contents = player.getInventory().getContents().clone();
+			if(BlacksmithPlugin.getItemsConfig().getBoolean("required") && BlacksmithPlugin.getItemsConfig().contains("items." + player.getInventory().getItemInMainHand().getType())) {
+				ConfigurationSection c = BlacksmithPlugin.getItemsConfig().getConfigurationSection("items." + player.getInventory().getItemInMainHand().getType());
+				Material mat1 = Material.valueOf(c.getString("material"));
+				int amount1 = c.getInt("materialCost");
+				Material mat2 = (c.contains("material2") ? Material.valueOf(c.getString("material2")) : null);
+				int amount2 = (mat2 == null ? 0 : c.getInt("material2Cost"));
+				int gemCost = c.getInt("gemCost");
+
+				int mat1Found = 0;
+				int mat2Found = 0;
+				int gemsFound = 0;
+
+				ItemStack gem = BlacksmithPlugin.itemStackFromSection(BlacksmithPlugin.getItemsConfig().getConfigurationSection("repair-gem"));
+				int x = 0;
+				for (ItemStack s : contents) {
+					if(s == null) { x++; continue; }
+					s = s.clone();
+					boolean found1 = mat1Found >= amount1;
+					boolean found2 = mat2Found >= amount2;
+					boolean foundGems = gemsFound >= gemCost;
+					int gemsNeeded = gemCost - gemsFound;
+					int mat1Needed = amount1 - mat1Found;
+					int mat2Needed = amount2 - mat2Found;
+					if(ScarabCommons.compareItemStack(gem, s) && !foundGems){
+						if(s.getAmount() - gemsNeeded <= 0){
+							gemsFound += s.getAmount();
+							contents[x] = null;
+						}else{
+							gemsFound += gemsNeeded;
+							s.setAmount(s.getAmount() - gemsNeeded);
+							contents[x] = s;
+						}
+					}else if(mat1.equals(s.getType()) && !found1){
+						if(s.getAmount() - mat1Needed <= 0){
+							mat1Found += s.getAmount();
+							contents[x] = null;
+						}else{
+							mat1Found += mat1Needed;
+							s.setAmount(s.getAmount() - mat1Needed);
+							contents[x] = s;
+						}
+					}else if(mat2 != null && mat2.equals(s.getType()) && !found2){
+						if(s.getAmount() - mat2Needed <= 0){
+							mat2Found += s.getAmount();
+							contents[x] = null;
+						}else{
+							mat2Found += mat2Needed;
+							s.setAmount(s.getAmount() - mat2Needed);
+							contents[x] = s;
+						}
+					}
+					x++;
+				}
+				boolean found1 = mat1Found >= amount1;
+				boolean found2 = mat2Found >= amount2;
+				boolean foundGems = gemsFound >= gemCost;
+				if(!(found1 && found2 && foundGems)) {
+					String msg = ChatColor.RED + "You're missing ";
+					boolean comma = false;
+					if(!foundGems) {
+						msg += ChatColor.WHITE.toString() + gemCost + "x " + gem.getItemMeta().getDisplayName() + ChatColor.WHITE;
+						comma = true;
+					}
+					if(!found1) {
+						msg += (comma ? ", " : " ") + amount1 + "x " + Items.itemByType(mat1).getName();
+						comma = true;
+					}
+					if(!found2)
+						msg += (comma ? ", " : " ") + amount2 + "x " + Items.itemByType(mat2).getName();
+					player.sendMessage(msg);
+					return true;
+				}
+			}
+
 			// Prevent player from switching items during session
 			if (!reforge.equals(player.getItemInHand())) {
 				player.sendMessage( itemChangedMsg);
@@ -335,6 +427,12 @@ public class BlacksmithTrait extends Trait {
 				player.sendMessage( insufficientFundsMsg.replace("<price>", cost).replace("currentfounds", currentfounds));
 				return true;
 			}
+			int x = 0;
+			for(ItemStack s : contents){
+				player.getInventory().setItem(x, s);
+				x++;
+			}
+			player.getInventory().setContents(contents);
 			return false;
 		}
 
