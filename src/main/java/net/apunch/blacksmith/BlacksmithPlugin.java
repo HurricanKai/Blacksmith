@@ -1,6 +1,9 @@
 package net.apunch.blacksmith;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import net.apunch.blacksmith.util.Settings;
@@ -12,34 +15,35 @@ import net.citizensnpcs.api.util.DataKey;
 
 import net.milkbowl.vault.economy.Economy;
 
+import net.milkbowl.vault.item.Items;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import regalowl.hyperconomy.HyperAPI;
-import regalowl.hyperconomy.HyperConomy;
-import regalowl.hyperconomy.bukkit.BukkitConnector;
-import regalowl.hyperconomy.inventory.HItemStack;
-import regalowl.hyperconomy.tradeobject.TradeObject;
 
-
-public class BlacksmithPlugin extends JavaPlugin {
+public class BlacksmithPlugin extends JavaPlugin implements CommandExecutor {
 	//TODO: player.getInventory().getItem(index) Index = onItemHeldChange(EVENT);
 	public BlacksmithPlugin plugin;
 	private Settings config;
 	private Economy economy;
-	private HyperAPI hyperAPI;
-	private BukkitConnector bukCon;
 	private boolean useHyperAPI = false;
+	private static File itemsFile;
+	private static FileConfiguration itemsConfig;
     //private boolean hasCititrader = false; // CitiTrader dependency outdated and broken
 
 	@Override
@@ -51,20 +55,22 @@ public class BlacksmithPlugin extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		getCommand("blacksmith").setExecutor(new BlacksmithCommand());
 		config = new Settings(this);
 		config.load();
+		itemsFile = new File(this.getDataFolder(), "items.yml");
+		if(!itemsFile.exists())
+			try {
+				FileUtils.copyInputStreamToFile(this.getResource("items.yml"), itemsFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
 		// Setup Hyperconomy (Soft-Depend only, so this is completely optional!)    
 		// Hyperconomy uses your favorite Vault-compatible economy system
 		// and calculates prices for items based on supply and demand on the fly.
 		// This is only used to get the cost of a repair.
-		if (Bukkit.getPluginManager().getPlugin("HyperConomy") != null) {
-			getServer().getLogger().log(Level.INFO, "Found HyperConomy! Using that for calculating prices, base-prices and price-per-durability-point in the Blacksmith config.yml will NOT be used!");
-			this.useHyperAPI = true;
-			Plugin hcPlugin = getServer().getPluginManager().getPlugin("HyperConomy");
-			bukCon = (BukkitConnector)hcPlugin;
-			HyperConomy hc = bukCon.getHC();
-			this.hyperAPI = (HyperAPI) hc.getAPI();
-		}
+
 		getLogger().log(Level.INFO, "Setting Up Vault now....");
         /* CitiTrader dependency outdated and broken
                 // Check for Cititrader
@@ -88,6 +94,18 @@ public class BlacksmithPlugin extends JavaPlugin {
 		CitizensAPI.getTraitFactory().registerTrait(net.citizensnpcs.api.trait.TraitInfo.create(BlacksmithTrait.class).withName("blacksmith"));
 
 		getLogger().log(Level.INFO, " v" + getDescription().getVersion() + " enabled.");
+	}
+
+	public static FileConfiguration getItemsConfig(){
+		return itemsConfig;
+	}
+
+	public static void saveItemConfig(FileConfiguration conf){
+		try {
+			itemsConfig.save(itemsFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -257,62 +275,12 @@ public class BlacksmithPlugin extends JavaPlugin {
 			price = root.getDouble("base-prices." + item.getType().name().toLowerCase().replace('_', '-'));
 
 		// Adjust price based on durability and enchantments
-		if (this.useHyperAPI) {
-			// If using hyperconomy, price is calculated like so:
-			// New Item Price + Enchantments Price (from hyperconomy) / maxDurability = price per durability point
-			// Total price would then be base_price + price per durablity point * current durability
-			double hyperPrice = 0;
-			HItemStack hi = hyperAPI.getHyperPlayer(player.getName()).getItemInHand();
-			ItemStack item2 = player.getItemInHand().clone();
-			
-			for (TradeObject enchant : hyperAPI.getEnchantmentHyperObjects(hi, player.getName())) {
-				hyperPrice = hyperPrice + enchant.getBuyPrice(1);
-				item2.removeEnchantment(Enchantment.getByName(enchant.getEnchantment().getEnchantmentName()));
-			}
-			
-			ArrayList<Material> leathers = new ArrayList<Material>();
-			leathers.add(Material.LEATHER_BOOTS);
-			leathers.add(Material.LEATHER_CHESTPLATE);
-			leathers.add(Material.LEATHER_HELMET);
-			leathers.add(Material.LEATHER_LEGGINGS);
-			
-			HItemStack hi3 = null;
-			if (leathers.contains(player.getItemInHand().getType())){
-				hi3 = bukCon.getBukkitCommon().getSerializableItemStack(new ItemStack(player.getItemInHand().getType()));
-			}
-			
-			TradeObject to = this.hyperAPI.getHyperObject(hi, "default");
-			if (to==null) {
-				to = hyperAPI.getHyperObject(hi3, "default");
-				if (to==null) {
-					HItemStack hi4 = bukCon.getBukkitCommon().getSerializableItemStack(new ItemStack(player.getItemInHand().getType()));
-					to = this.hyperAPI.getHyperObject(hi4, "default");
-				}
-				hyperPrice = hyperPrice+to.getSellPrice(1);
-	
-			} else {
-				hyperPrice = to.getSellPrice(1);
-			}
-			double hyperPricePerDurability = hyperPrice / item.getType().getMaxDurability();
-			price += (item.getDurability() * hyperPricePerDurability);
-			
-			double enchantmentModifier = Setting.ENCHANTMENT_MODIFIER.asDouble();
-			for (Enchantment enchantment : item2.getEnchantments().keySet()) {
-				if (root.keyExists("enchantment-modifiers." + enchantment.getName().toLowerCase().replace('_', '-')))
-					enchantmentModifier = root.getDouble("enchantment-modifiers."
-							+ enchantment.getName().toLowerCase().replace('_', '-'));
-				price += enchantmentModifier * item2.getEnchantmentLevel(enchantment);
-			}
-			
-			
-			return price;
-		}
 
-		else {
-			if (root.keyExists("price-per-durability-point." + item.getType().name().toLowerCase().replace('_', '-')))
-				price += item.getDurability() * root.getDouble("price-per-durability-point." + item.getType().name().toLowerCase().replace('_', '-'));
-			else price += (item.getDurability() * Setting.PRICE_PER_DURABILITY_POINT.asDouble());
-		}
+
+		if (root.keyExists("price-per-durability-point." + item.getType().name().toLowerCase().replace('_', '-')))
+			price += item.getDurability() * root.getDouble("price-per-durability-point." + item.getType().name().toLowerCase().replace('_', '-'));
+		else price += (item.getDurability() * Setting.PRICE_PER_DURABILITY_POINT.asDouble());
+
 
 		double enchantmentModifier = Setting.ENCHANTMENT_MODIFIER.asDouble();
 		for (Enchantment enchantment : item.getEnchantments().keySet()) {
@@ -322,5 +290,23 @@ public class BlacksmithPlugin extends JavaPlugin {
 			price += enchantmentModifier * item.getEnchantmentLevel(enchantment);
 		}
 		return price;
+	}
+
+	public static ItemStack itemStackFromSection(ConfigurationSection section){
+		ItemStack is = new ItemStack(Material.valueOf(section.getString("item")));
+		if(section.contains("amount"))
+			is.setAmount(section.getInt("amount"));
+		if(section.contains("meta")){
+			ItemMeta im = is.getItemMeta();
+			if(section.contains("meta.name"))
+				im.setDisplayName(ChatColor.translateAlternateColorCodes('&', section.getString("meta.name")));
+			if(section.contains("meta.lore")){
+				List<String> lore = new ArrayList<>();
+				section.getStringList("meta.lore").forEach(s -> lore.add(ChatColor.translateAlternateColorCodes('&', s)));
+				im.setLore(lore);
+			}
+			is.setItemMeta(im);
+		}
+		return is;
 	}
 }

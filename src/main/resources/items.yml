@@ -1,0 +1,16 @@
+required: true
+repair-gem:
+  item: EMERALD
+  meta:
+    name: "&eGems of Repair"
+    lore:
+      - "&bUncommon"
+      - "&6This magical gem is prized by the blacksmiths"
+      - "&6Consume on Use"
+items:
+  IRON_SWORD:
+    gemCost: 2
+    material: IRON_INGOT
+    materialCost: 2
+    material2: STICK
+    material2Cost: 2
